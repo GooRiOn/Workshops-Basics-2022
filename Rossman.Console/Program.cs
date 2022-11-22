@@ -1,119 +1,97 @@
-﻿
+﻿// C# 1 Begin/Invoke
 
-// C#
+// C# 2 Event-Based
 
-using System.Diagnostics;
-using System.Linq.Expressions;
+// C# Task-Based
+
+// async/await 
+
+using System.Runtime.CompilerServices;
+using System.Text;
 using External.Assembly;
+var service = new UsersService();
 
+//var task2 = new Task2();
 
-Func<int, int, int> add = (a, b) => a + b;
+//await task2;
 
-Expression<Func<int, int, int>> addExpression = (a, b) => a + b;
+var user1 =  service.GetByIdAsync(Guid.NewGuid());
+var user2 =  await service.GetByIdAsync(Guid.NewGuid());
 
-addExpression.Compile()(1, 2);
+Console.ReadLine();
+var ids = new[] {Guid.NewGuid(), Guid.NewGuid(),};
+//var users = new List<User>();
+
+//var tasks = ids
+  //  .Select(id => service.GetByIdAsync(id));
+
+//var users = await Task.WhenAll(tasks);
 
 Console.WriteLine();
 
-Func<int, string> convert = x => x.ToString();
+//First - FirstOrDefault
+//Single - SingleOrDefault
 
-Func<int> getRandomNumber = () => new Random().Next();
-
-Func<int, Func<int>> getPoweredFunc = x => () => x * x;
-Action<int, int> printSum = (x, y) => Console.WriteLine($"{x} + {y}");
-
-var powFunc = getPoweredFunc(3);
-
-var pow = powFunc();
-
-
-Func<User, bool> predicate = x => x.Age > 30;
-
-
-
-var numbers = new List<int> {1, 2, 3, 4, 5, 6, 7, 8, 9};
-
-//var evenNumbers = new List<int>();
-
-
-var users = new List<User>
+public class UsersService
 {
-    new() {FullName = "Joe Doe", Age = 18},
-    new() {FullName = "Mark Doe", Age = 30},
-    new() {FullName = "Tim Doe", Age = 45},
-    new() {FullName = "Samanta Doe", Age = 15},
-    new() {FullName = "Ivy Doe", Age = 99},
-    new() {FullName = "Test Doe", Age = 76},
-};
+    private readonly DatabaseConnector _connector = new();
 
+    public Task<User> GetByIdAsync(Guid id)
+        => _connector.GetByIdAsync(id, 10_000);
+}
 
-var result = users
-    .Where(user => user.Age is >= 18 and < 50)
-    .Select(user => new
+public class DatabaseConnector
+{
+    public User GetById(Guid id)
     {
-        MyCustomAge = user.Age + 1, 
-        MyCustomFullName = $"{user.FullName} ###",
-    })
-    .OrderByDescending(x => x.MyCustomAge);
+        Console.WriteLine("Connecting to db...");
+        Thread.Sleep(10_000);
+        Console.WriteLine("Connected to db!");
 
+        return new User {Id = id, FullName = "Joe Doe", Age = 18};
+    }
 
-var ageAvg = users
-    .Where(user => user.Age > 20)
-    .Average(user => user.Age);
-
-Console.WriteLine(ageAvg);
-
-var mapper = new ExceptionToMessageMapper();
-var message = mapper.Map(new DivideByZeroException());
-
-//_ = user ?? throw new ArgumentException();
-
-
-var user = new User
-{
-    FullName = "Joe Doe"
-};
-
-user = null;
-
-Console.WriteLine(user?.FullName);
-
-new MyService().PrintUserFullName(null);
-
-
-class ExceptionToMessageMapper
-{
-    public string Map(object exception)
-        => exception switch
-        {
-            InvalidUserAgeException ex => "Invalid user age!",
-            InvalidUserFullNameException ex => "Invalid user name",
-            _ => "There was an error"
-        };
-}
-
-
-public class BaseException : Exception
-{
-    
-}
-
-public class InvalidUserFullNameException : BaseException
-{
-    
-}
-
-
-public class InvalidUserAgeException : BaseException
-{
-    
-}
-
-public class MyService
-{
-    public void PrintUserFullName(User user)
+    public async Task<User> GetByIdAsync(Guid id, int delay)
     {
+        Console.WriteLine("Connecting to db...");
+        await Task.Delay(delay); // throw new NotImplementedException();
+        Console.WriteLine("Connected to db!");
 
-        Console.WriteLine(user?.FullName ?? "Default value");
+        return new User {Id = id, FullName = "Joe Doe", Age = 18};
+    }
+
+    public async void Test() // fire and forget
+    {
+        Console.WriteLine("Test");
+    }
+
+    //C# 4 
+    public void Test2()
+    {
+        var await = 2;
+    }
+}
+
+//
+
+public class Task2
+{
+    public TaskAwaiter2 GetAwaiter()
+    {
+        return new TaskAwaiter2();
+    }
+        
+}
+
+public class TaskAwaiter2 : INotifyCompletion
+{
+    public bool IsCompleted { get; set; } = true;
+    public void OnCompleted(Action continuation)
+    {
+    }
+
+    public void GetResult()
+    {
+        Console.WriteLine("WOW!");
     }
 }
