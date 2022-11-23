@@ -3,19 +3,20 @@
 public sealed class User
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string FullName { get; set; } // NO + FullName
-
-    public const string Surname = "AAA";
-    
+    public string FullName { get; set; }
     public int Age { get; set; }
 
-    public static bool operator ==(User a, User b)
+    public IEnumerable<Reservation> Reservations = new[]
     {
-        return true;
-    }
+        new Reservation(),
+        new Reservation(),
+        new Reservation(),
+        new Reservation(),
+        new Reservation(),
+    };
+}
 
-    public static bool operator !=(User a, User b)
-    {
-        return !(a == b);
-    }
+public class Reservation
+{
+    public Guid Id { get; set; } = new();
 }

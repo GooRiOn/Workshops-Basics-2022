@@ -1,48 +1,32 @@
 ﻿
-using System.Globalization;
+using External.Assembly;
 
-var user = new User();
-
-var number = ((IConvertible) "aa").ToInt32(null);
-Console.WriteLine();
-
-public interface ISoftDeletable
+var  users = new List<User>
 {
-    DateTimeOffset? DeletionDate { get; set; }
-    bool  IsDeleted => DeletionDate.HasValue;
-    void SoftDelete();
-}
+    new () {Age = 82},
+    new () {Age = 52},
+    new () {Age = 72},
+};
 
 
-public class User : ISoftDeletable// SOFT DELETE
-{
-    public Guid Id { get; set; }
-    DateTimeOffset? ISoftDeletable.DeletionDate { get; set; }
     
-    void ISoftDeletable.SoftDelete()
-    {
-        ((ISoftDeletable)this).DeletionDate = DateTimeOffset.Now;
-    }
-}
 
-public class Product // HARD
+var reservations = users.SelectMany(user => user.Reservations);
+
+
+var result = users.MyAwesomeSelect(x => x.Age);
+Console.ReadLine();
+
+
+static class Extensions
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
-}
-
-
-class DbConnector<TEntity>
-{
-    public void Delete(TEntity entity)
+    public static IEnumerable<TResult> MyAwesomeSelect<TSource,TResult>(this IEnumerable<TSource> source,
+        Func<TSource, TResult> map)
     {
-        if (entity is ISoftDeletable softDeletable)
+        foreach (var element in source)
         {
-            softDeletable.SoftDelete();
-            // DB UPDATE
-            return;
+            var mappedElement = map(element);
+            yield return mappedElement;
         }
-        
-        // DB DELETE
     }
 }
